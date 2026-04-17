@@ -142,25 +142,25 @@ export default function InterviewRoom() {
   const pulseScale = 1 + (audioLevel * 0.5); // Max scale 1.5
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 text-white relative overflow-hidden">
+    <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center p-6 text-gray-800 relative overflow-hidden">
       
       {/* Decorative background gradients */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-40"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-fuchsia-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-40"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-yellow-400 rounded-full mix-blend-multiply filter blur-[128px] opacity-40"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-30"></div>
 
       <div className="z-10 w-full max-w-3xl flex flex-col items-center">
         
         {/* Error State */}
         {(micError || backendError) && (
-          <div className="bg-red-500/10 border border-red-500/50 text-red-200 p-4 rounded-xl mb-8 flex items-start gap-3 w-full max-w-lg backdrop-blur-sm z-20">
-            <AlertCircle className="w-6 h-6 flex-shrink-0 mt-0.5 text-red-400" />
+          <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-[1.5rem] mb-8 flex items-start gap-3 w-full max-w-lg backdrop-blur-sm z-20 shadow-sm">
+            <AlertCircle className="w-6 h-6 flex-shrink-0 mt-0.5 text-red-500" />
             <div>
-              <h3 className="font-semibold text-red-300">Error</h3>
+              <h3 className="font-semibold text-red-800">Error</h3>
               <p className="text-sm opacity-90 mt-1">{micError || backendError}</p>
               {micError && (
                 <button 
                   onClick={startRecording}
-                  className="mt-4 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-sm transition-colors"
+                  className="mt-4 px-4 py-2 bg-red-100 hover:bg-red-200 rounded-lg text-sm transition-colors font-semibold"
                 >
                   Try Again
                 </button>
@@ -175,28 +175,28 @@ export default function InterviewRoom() {
           {isRecording && !micError && (
             <>
               <div 
-                className="absolute inset-0 bg-indigo-500 rounded-full opacity-20 blur-xl transition-transform duration-75"
+                className="absolute inset-0 bg-orange-500 rounded-full opacity-30 blur-xl transition-transform duration-75"
                 style={{ transform: `scale(${pulseScale * 1.2})` }}
               ></div>
               <div 
-                className="absolute inset-4 bg-indigo-400 rounded-full opacity-30 blur-md transition-transform duration-75"
+                className="absolute inset-4 bg-yellow-400 rounded-full opacity-40 blur-md transition-transform duration-75"
                 style={{ transform: `scale(${pulseScale})` }}
               ></div>
             </>
           )}
           
           {/* Core Avatar */}
-          <div className={`relative z-10 w-32 h-32 rounded-full flex items-center justify-center shadow-2xl border-4 border-slate-800/50 backdrop-blur-sm transition-all duration-200 ${isAiSpeaking ? 'bg-fuchsia-600' : 'bg-indigo-600'}`}>
-             {isAiSpeaking ? <Volume2 className="w-12 h-12 text-white animate-pulse" /> : (isRecording ? <Mic className="w-12 h-12 text-white" /> : <MicOff className="w-12 h-12 text-indigo-300 opacity-50" />)}
+          <div className={`relative z-10 w-32 h-32 rounded-full flex items-center justify-center shadow-xl border-4 border-white backdrop-blur-sm transition-all duration-200 ${isAiSpeaking ? 'bg-yellow-400' : 'bg-orange-500'}`}>
+             {isAiSpeaking ? <Volume2 className="w-12 h-12 text-gray-800 animate-pulse" /> : (isRecording ? <Mic className="w-12 h-12 text-white" /> : <MicOff className="w-12 h-12 text-orange-200 opacity-80" />)}
           </div>
         </div>
 
         {/* Status Text */}
         <div className="text-center space-y-2 mb-12">
-          <h2 className="text-2xl font-medium tracking-wide">
+          <h2 className="text-3xl font-extrabold tracking-tight text-gray-800">
             {micError ? 'Interview Paused' : (isAiSpeaking ? 'AI is speaking...' : (isTranscribing ? 'Processing...' : (isRecording ? 'Listening...' : 'Ready')))}
           </h2>
-          <p className="text-slate-400 text-sm h-5">
+          <p className="text-gray-500 text-sm h-5 font-medium">
              {isRecording && !isAiSpeaking ? 'Speak clearly into your microphone' : (isTranscribing ? 'Please wait' : '')}
           </p>
         </div>
@@ -207,10 +207,10 @@ export default function InterviewRoom() {
             onClick={isRecording ? stopRecording : startRecording}
             disabled={isTranscribing || isAiSpeaking || isEvaluating}
             className={`p-4 rounded-full transition-all duration-200 ${
-              isTranscribing || isAiSpeaking || isEvaluating ? 'bg-slate-700 text-slate-500 cursor-not-allowed' :
+              isTranscribing || isAiSpeaking || isEvaluating ? 'bg-gray-200 text-gray-400 cursor-not-allowed' :
               isRecording 
-                ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300' 
-                : 'bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 hover:text-indigo-300'
+                ? 'bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700' 
+                : 'bg-orange-100 text-orange-600 hover:bg-orange-200 hover:text-orange-700 shadow-sm active:translate-y-1 active:scale-95'
             }`}
             title={isRecording ? 'Stop Recording' : 'Start Recording'}
           >
@@ -222,8 +222,8 @@ export default function InterviewRoom() {
             disabled={isTranscribing || isAiSpeaking || isEvaluating || chatHistory.length === 0}
             className={`px-6 py-3 rounded-full font-bold transition-all duration-200 flex items-center gap-2 ${
               isTranscribing || isAiSpeaking || isEvaluating || chatHistory.length === 0
-                ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 hover:text-emerald-300'
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-md active:translate-y-1 active:scale-95'
             }`}
           >
             {isEvaluating ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
@@ -234,22 +234,22 @@ export default function InterviewRoom() {
         {/* Conversation Display */}
         <div className="mt-12 w-full max-w-2xl flex flex-col gap-4">
           {aiReply && (
-            <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 backdrop-blur-sm shadow-xl">
-              <h3 className="text-sm font-semibold text-fuchsia-400 mb-2 uppercase tracking-wider">AI Recruiter:</h3>
-              <p className="text-lg leading-relaxed text-slate-200">{aiReply}</p>
+            <div className="bg-white border border-gray-200 rounded-[2rem] p-6 backdrop-blur-sm shadow-md">
+              <h3 className="text-sm font-bold text-orange-500 mb-2 uppercase tracking-wider">AI Recruiter:</h3>
+              <p className="text-lg leading-relaxed text-gray-800">{aiReply}</p>
             </div>
           )}
           
           {(transcription || isTranscribing) && !isAiSpeaking && (
-            <div className="bg-indigo-900/20 border border-indigo-500/30 rounded-xl p-6 backdrop-blur-sm">
-              <h3 className="text-sm font-semibold text-indigo-400 mb-2 uppercase tracking-wider">You:</h3>
+            <div className="bg-orange-50/50 border border-orange-200 rounded-[2rem] p-6 backdrop-blur-sm shadow-sm">
+              <h3 className="text-sm font-bold text-gray-500 mb-2 uppercase tracking-wider">You:</h3>
               {isTranscribing && !transcription ? (
-                <div className="flex items-center gap-3 text-slate-400">
-                  <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
+                <div className="flex items-center gap-3 text-gray-500">
+                  <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
                   <span className="italic">Processing...</span>
                 </div>
               ) : (
-                <p className="text-lg leading-relaxed text-indigo-100">{transcription}</p>
+                <p className="text-lg leading-relaxed text-gray-800">{transcription}</p>
               )}
             </div>
           )}
