@@ -52,7 +52,7 @@ app.post('/api/chat', async (req, res) => {
     }
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       contents: contents,
       config: {
         systemInstruction: SYSTEM_PROMPT,
@@ -111,7 +111,7 @@ app.post('/api/evaluate', async (req, res) => {
     const transcript = history.map(msg => `${msg.role === 'assistant' ? 'AI Recruiter' : 'Candidate'}: ${msg.content}`).join('\n\n');
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-1.5-pro',
       contents: `Transcript:\n${transcript}`,
       config: {
         systemInstruction: EVALUATION_PROMPT,

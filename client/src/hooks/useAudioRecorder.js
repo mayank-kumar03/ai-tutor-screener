@@ -10,11 +10,15 @@ export function useAudioRecorder(onRecordingComplete) {
   const analyserRef = useRef(null);
   const animationFrameRef = useRef(null);
   const streamRef = useRef(null);
+  const lastUpdateRef = useRef(0);
+  const isRecordingRef = useRef(false);
   
   const transcriptRef = useRef('');
 
   const startRecording = useCallback(async () => {
     try {
+      if (isRecordingRef.current) return;
+      
       setError(null);
       transcriptRef.current = '';
 
@@ -71,13 +75,18 @@ export function useAudioRecorder(onRecordingComplete) {
           sum += dataArray[i];
         }
         const average = sum / bufferLength;
-        setAudioLevel(Math.min(average / 128, 1));
+        const now = Date.now();
+        if (now - lastUpdateRef.current > 100) {
+          setAudioLevel(Math.min(average / 128, 1));
+          lastUpdateRef.current = now;
+        }
         animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
       };
       updateAudioLevel();
 
       // Start the actual speech recognition
       recognition.start();
+      isRecordingRef.current = true;
       setIsRecording(true);
       
     } catch (err) {
@@ -91,7 +100,9 @@ export function useAudioRecorder(onRecordingComplete) {
   }, []);
 
   const stopRecording = useCallback(() => {
-    if (recognitionRef.current && isRecording) {
+    if (!isRecordingRef.current) return;
+    
+    if (recognitionRef.current) {
       recognitionRef.current.stop();
     }
     if (streamRef.current) {
@@ -103,14 +114,16 @@ export function useAudioRecorder(onRecordingComplete) {
     if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
       audioContextRef.current.close();
     }
+    
+    isRecordingRef.current = false;
     setIsRecording(false);
     setAudioLevel(0);
 
-    if (onRecordingComplete && isRecording) {
+    if (onRecordingComplete) {
       // Pass the transcribed text directly
       onRecordingComplete(transcriptRef.current.trim());
     }
-  }, [isRecording, onRecordingComplete]);
+  }, [onRecordingComplete]);
 
   return {
     isRecording,
