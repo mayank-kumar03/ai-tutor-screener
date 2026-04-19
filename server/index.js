@@ -8,7 +8,13 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173', // Vite/React local dev
+    'https://your-frontend-domain.com' // Production frontend
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 const ai = new GoogleGenAI({
