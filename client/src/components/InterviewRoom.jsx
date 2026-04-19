@@ -45,7 +45,7 @@ export default function InterviewRoom() {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/evaluate', {
+      const response = await fetch('https://ai-tutor-screener-pybj.onrender.com/api/evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ history: chatHistory }),
@@ -68,7 +68,7 @@ export default function InterviewRoom() {
     setIsTranscribing(true);
     setBackendError('');
     try {
-      const response = await fetch('http://localhost:3001/api/chat', {
+      const response = await fetch('https://ai-tutor-screener-pybj.onrender.com/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ history }),
