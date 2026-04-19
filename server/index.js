@@ -11,7 +11,7 @@ const port = process.env.PORT || 3001;
 app.use(cors({
   origin: [
     'http://localhost:5173', // Vite/React local dev
-    'https://your-frontend-domain.com' // Production frontend
+    'https://ai-tutor-screener-lemon.vercel.app' // Production frontend
   ],
   credentials: true
 }));
