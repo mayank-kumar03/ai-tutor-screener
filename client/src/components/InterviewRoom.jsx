@@ -10,14 +10,39 @@ export default function InterviewRoom() {
   const [chatHistory, setChatHistory] = useState([]);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
+  const [showNextButton, setShowNextButton] = useState(false);
   const [backendError, setBackendError] = useState('');
   const [hasStarted, setHasStarted] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
+
+  const handleRecordingComplete = async (transcriptText) => {
+    if (!transcriptText) {
+      return;
+    }
+    setBackendError('');
+    setTranscription(transcriptText);
+    try {
+      const newHistory = [...chatHistory, { role: 'user', content: transcriptText }];
+      setChatHistory(newHistory);
+      await fetchAiResponse(newHistory);
+    } catch (err) {
+      console.error("Error fetching AI response:", err);
+      setBackendError(err.message);
+    }
+  };
+
+  const { isRecording, error: micError, audioLevel, startRecording, stopRecording } = useAudioRecorder(handleRecordingComplete);
 
   const handleEndInterview = async () => {
     if (chatHistory.length === 0) return;
     setIsEvaluating(true);
     setBackendError('');
+
+    // Ensure any ongoing recording or speech is stopped before ending interview
+    if (isRecording) stopRecording();
+    if (isAiSpeaking && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
 
     try {
       const response = await fetch('http://localhost:3001/api/evaluate', {
@@ -74,7 +99,8 @@ export default function InterviewRoom() {
 
         utterance.onend = () => {
           setIsAiSpeaking(false);
-          startRecording(); // Automatically let user speak next
+          // Show Next Question button instead of auto-starting recording
+          setShowNextButton(true);
         };
         
         utterance.onerror = (e) => {
@@ -96,27 +122,7 @@ export default function InterviewRoom() {
     }
   };
 
-  const handleRecordingComplete = async (transcriptText) => {
-    if (!transcriptText) {
-       // If no text was picked up, maybe prompt user to speak again
-       return;
-    }
 
-    setBackendError('');
-    setTranscription(transcriptText);
-    
-    try {
-      const newHistory = [...chatHistory, { role: 'user', content: transcriptText }];
-      setChatHistory(newHistory);
-      
-      await fetchAiResponse(newHistory);
-    } catch (err) {
-      console.error("Error fetching AI response:", err);
-      setBackendError(err.message);
-    }
-  };
-
-  const { isRecording, error: micError, audioLevel, startRecording, stopRecording } = useAudioRecorder(handleRecordingComplete);
 
   const initRef = useRef(false);
 
@@ -201,35 +207,48 @@ export default function InterviewRoom() {
           </p>
         </div>
 
-        {/* Controls */}
-        <div className="flex gap-4 items-center">
-          <button 
-            onClick={isRecording ? stopRecording : startRecording}
-            disabled={isTranscribing || isAiSpeaking || isEvaluating}
-            className={`p-4 rounded-full transition-all duration-200 ${
-              isTranscribing || isAiSpeaking || isEvaluating ? 'bg-gray-200 text-gray-400 cursor-not-allowed' :
-              isRecording 
-                ? 'bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700' 
-                : 'bg-orange-100 text-orange-600 hover:bg-orange-200 hover:text-orange-700 shadow-sm active:translate-y-1 active:scale-95'
-            }`}
-            title={isRecording ? 'Stop Recording' : 'Start Recording'}
-          >
-            {isRecording ? <MicOff size={24} /> : <Mic size={24} />}
-          </button>
-
-          <button
-            onClick={handleEndInterview}
-            disabled={isTranscribing || isAiSpeaking || isEvaluating || chatHistory.length === 0}
-            className={`px-6 py-3 rounded-full font-bold transition-all duration-200 flex items-center gap-2 ${
-              isTranscribing || isAiSpeaking || isEvaluating || chatHistory.length === 0
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-md active:translate-y-1 active:scale-95'
-            }`}
-          >
-            {isEvaluating ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
-            {isEvaluating ? 'Evaluating...' : 'End Interview'}
-          </button>
-        </div>
+          {/* Controls */}
+          <div className="flex gap-4 items-center">
+            {/* Stop Recording button */}
+            {isRecording && (
+              <button
+                onClick={stopRecording}
+                disabled={isTranscribing || isAiSpeaking || isEvaluating}
+                className="p-4 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition"
+                title="Stop Recording"
+              >
+                <MicOff size={24} />
+              </button>
+            )}
+            {/* Next Question button */}
+            {showNextButton && (
+              <button
+                onClick={() => {
+                  setShowNextButton(false);
+                  startRecording();
+                }}
+                disabled={isTranscribing || isAiSpeaking || isEvaluating}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+              >
+                Next Question
+              </button>
+            )}
+            {/* End Interview button */}
+            {chatHistory.length > 0 && (
+              <button
+                onClick={handleEndInterview}
+                disabled={isTranscribing || isAiSpeaking || isEvaluating}
+                className="px-6 py-3 rounded-full bg-emerald-500 text-white hover:bg-emerald-600 transition"
+              >
+                {isEvaluating ? (
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                ) : (
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                )}
+                {isEvaluating ? 'Evaluating...' : 'End Interview'}
+              </button>
+            )}
+          </div>
 
         {/* Conversation Display */}
         <div className="mt-12 w-full max-w-2xl flex flex-col gap-4">

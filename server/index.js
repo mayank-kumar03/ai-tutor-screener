@@ -111,7 +111,7 @@ app.post('/api/evaluate', async (req, res) => {
     const transcript = history.map(msg => `${msg.role === 'assistant' ? 'AI Recruiter' : 'Candidate'}: ${msg.content}`).join('\n\n');
 
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-pro',
+      model: 'gemini-2.5-flash',
       contents: `Transcript:\n${transcript}`,
       config: {
         systemInstruction: EVALUATION_PROMPT,
